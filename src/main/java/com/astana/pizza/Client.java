@@ -1,67 +1,70 @@
 package com.astana.pizza;
 
 /**
- * Client / Demo class.
- * Demonstrates both Director-driven construction and direct fluent usage.
+ * Client: exercises the builders and prints the resulting products, both via
+ * the {@link PizzaDirector} and directly through the fluent API.
  */
-public class Client {
+public final class Client {
+
+    private static final String SEPARATOR = "----------------------------------------";
+
+    private Client() {
+    }
 
     public static void main(String[] args) {
-        System.out.println("=== Builder Pattern Demo: Pizza ===\n");
+        System.out.println("=== Builder Pattern Demo: Pizza ===");
 
-        // ---------- 1. Using Director with Margherita builder ----------
-        PizzaBuilder margheritaBuilder = new MargheritaPizzaBuilder();
-        PizzaDirector director = new PizzaDirector(margheritaBuilder);
+        showClassicMargherita();
+        showClassicPepperoni();
+        showSpicyDeluxeVariant();
+        showFluentUsageWithoutDirector();
+        showValidation();
+    }
 
-        Pizza classicMargherita = director.makeClassic();
-        System.out.println("1. Classic Margherita (via Director):");
-        System.out.println(classicMargherita);
-        System.out.println();
+    private static void showClassicMargherita() {
+        PizzaDirector director = new PizzaDirector(new MargheritaPizzaBuilder());
+        printProduct("1. Classic Margherita (via Director)", director.makeClassic());
+    }
 
-        // ---------- 2. Switching to Pepperoni builder ----------
-        PizzaBuilder pepperoniBuilder = new PepperoniPizzaBuilder();
-        director.changeBuilder(pepperoniBuilder);
+    private static void showClassicPepperoni() {
+        PizzaDirector director = new PizzaDirector(new PepperoniPizzaBuilder());
+        printProduct("2. Classic Pepperoni (via Director)", director.makeClassic());
+    }
 
-        Pizza classicPepperoni = director.makeClassic();
-        System.out.println("2. Classic Pepperoni (via Director):");
-        System.out.println(classicPepperoni);
-        System.out.println();
+    private static void showSpicyDeluxeVariant() {
+        PizzaDirector director = new PizzaDirector(new PepperoniPizzaBuilder());
+        Pizza deluxe = director.makeSpicyDeluxe();
+        printProduct("3. Spicy Deluxe (named recipe, same Director)", deluxe);
+    }
 
-        // ---------- 3. Fully custom pizza using Director ----------
-        Pizza custom = director.makeCustom(
-                "Student Special",
-                "Gluten-Free Thin",
-                "Pesto",
-                "Vegan Mozzarella",
-                false,
-                "Cherry Tomatoes", "Olives", "Mushrooms"
-        );
-        System.out.println("3. Custom pizza (via Director):");
-        System.out.println(custom);
-        System.out.println();
-
-        // ---------- 4. Direct fluent usage without Director ----------
-        Pizza fluentPizza = new PepperoniPizzaBuilder()
+    private static void showFluentUsageWithoutDirector() {
+        Pizza pizza = new PepperoniPizzaBuilder()
                 .setName("Extra Hot Pepperoni")
                 .setDough("Stuffed Crust")
                 .setSauce("Arrabbiata")
                 .setCheese("Triple Cheese")
-                .addTopping("Pepperoni")
                 .addTopping("Jalapenos")
                 .addTopping("Chili Flakes")
                 .setSpicy(true)
                 .build();
+        printProduct("4. Fluent API (no Director)", pizza);
+    }
 
-        System.out.println("4. Fluent API (no Director):");
-        System.out.println(fluentPizza);
+    private static void showValidation() {
         System.out.println();
+        System.out.println("5. Validation on build()");
+        try {
+            new MargheritaPizzaBuilder().setName("  ").build();
+            System.out.println("   ERROR: an invalid pizza was accepted");
+        } catch (IllegalStateException exception) {
+            System.out.println("   Rejected as expected -> " + exception.getMessage());
+        }
+    }
 
-        // ---------- 5. Demonstrate validation ----------
-        // Force an invalid state by using a raw BuilderState path is not public,
-        // so we demonstrate that build() always validates required fields.
-        // (In normal usage the concrete builders supply sensible defaults.)
-        System.out.println("5. Validation is enforced inside Pizza.from().");
-        System.out.println("   Required fields: name, dough, sauce.");
-        System.out.println("   Any missing required field throws IllegalStateException.");
+    private static void printProduct(String title, Pizza pizza) {
+        System.out.println();
+        System.out.println(title);
+        System.out.println(SEPARATOR);
+        System.out.println(pizza);
     }
 }

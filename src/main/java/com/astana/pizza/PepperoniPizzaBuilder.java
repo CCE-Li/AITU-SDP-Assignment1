@@ -1,88 +1,27 @@
 package com.astana.pizza;
 
 /**
- * ConcreteBuilder that produces a spicy Pepperoni pizza.
- * Different representation from Margherita: thicker dough, spicy sauce, meat toppings.
+ * Concrete builder for an American-style spicy Pepperoni pizza.
+ * Produces a deliberately different representation from
+ * {@link MargheritaPizzaBuilder}: thicker dough, spicy sauce and meat toppings.
  */
-public class PepperoniPizzaBuilder implements PizzaBuilder {
+public final class PepperoniPizzaBuilder extends AbstractPizzaBuilder {
 
-    private Pizza.BuilderState state = new Pizza.BuilderState();
-    private boolean spicyExplicitlySet = false;
-
-    public PepperoniPizzaBuilder() {
-        reset();
-    }
-
-    @Override
-    public PizzaBuilder setName(String name) {
-        state.name = name;
-        return this;
-    }
+    private static final String STYLE_NAME = "Pepperoni Feast";
+    private static final String STYLE_DOUGH = "Thick Crust";
+    private static final String STYLE_SAUCE = "Spicy Tomato";
+    private static final String STYLE_CHEESE = "Mozzarella + Cheddar";
+    private static final String SIGNATURE_TOPPING = "Pepperoni";
+    private static final String EXTRA_TOPPING = "Extra Pepperoni";
 
     @Override
-    public PizzaBuilder setDough(String dough) {
-        state.dough = dough;
-        return this;
-    }
-
-    @Override
-    public PizzaBuilder setSauce(String sauce) {
-        state.sauce = sauce;
-        return this;
-    }
-
-    @Override
-    public PizzaBuilder setCheese(String cheese) {
-        state.cheese = cheese;
-        return this;
-    }
-
-    @Override
-    public PizzaBuilder addTopping(String topping) {
-        if (topping != null && !topping.isBlank()) {
-            state.toppings.add(topping);
-        }
-        return this;
-    }
-
-    @Override
-    public PizzaBuilder setSpicy(boolean spicy) {
-        state.spicy = spicy;
-        spicyExplicitlySet = true;
-        return this;
-    }
-
-    @Override
-    public Pizza build() {
-        // Pepperoni defaults when not explicitly set
-        if (state.name == null) {
-            state.name = "Pepperoni Feast";
-        }
-        if (state.dough == null) {
-            state.dough = "Thick Crust";
-        }
-        if (state.sauce == null) {
-            state.sauce = "Spicy Tomato";
-        }
-        if (state.cheese == null) {
-            state.cheese = "Mozzarella + Cheddar";
-        }
-        if (state.toppings.isEmpty()) {
-            state.toppings.add("Pepperoni");
-            state.toppings.add("Extra Pepperoni");
-        }
-        if (!spicyExplicitlySet) {
-            state.spicy = true;   // default for Pepperoni style
-        }
-
-        Pizza pizza = Pizza.from(state);
-        reset();
-        return pizza;
-    }
-
-    @Override
-    public void reset() {
-        state = new Pizza.BuilderState();
-        spicyExplicitlySet = false;
+    protected void applyStyleDefaults() {
+        name = STYLE_NAME;
+        dough = STYLE_DOUGH;
+        sauce = STYLE_SAUCE;
+        cheese = STYLE_CHEESE;
+        toppings.add(SIGNATURE_TOPPING);
+        toppings.add(EXTRA_TOPPING);
+        spicy = true;
     }
 }

@@ -6,25 +6,35 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Product: represents a fully constructed Pizza.
- * Immutable after creation to guarantee a consistent final state.
+ * Product of the Builder pattern: a fully assembled pizza.
+ *
+ * <p>Immutable on purpose - once a builder has produced a {@code Pizza}, its
+ * state cannot be changed, so a constructed product is always consistent. The
+ * constructor is package-private; the only supported way to create a pizza is
+ * through a {@link PizzaBuilder}, whose {@code build()} validates the state
+ * before calling it.</p>
  */
 public final class Pizza {
 
+    private final String name;
     private final String dough;
     private final String sauce;
     private final String cheese;
     private final List<String> toppings;
     private final boolean spicy;
-    private final String name;
 
-    private Pizza(BuilderState state) {
-        this.dough = state.dough;
-        this.sauce = state.sauce;
-        this.cheese = state.cheese;
-        this.toppings = Collections.unmodifiableList(new ArrayList<>(state.toppings));
-        this.spicy = state.spicy;
-        this.name = state.name;
+    Pizza(String name, String dough, String sauce, String cheese,
+          List<String> toppings, boolean spicy) {
+        this.name = name;
+        this.dough = dough;
+        this.sauce = sauce;
+        this.cheese = cheese;
+        this.toppings = Collections.unmodifiableList(new ArrayList<>(toppings));
+        this.spicy = spicy;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getDough() {
@@ -47,49 +57,37 @@ public final class Pizza {
         return spicy;
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof Pizza)) {
+            return false;
+        }
+        Pizza pizza = (Pizza) other;
+        return spicy == pizza.spicy
+                && Objects.equals(name, pizza.name)
+                && Objects.equals(dough, pizza.dough)
+                && Objects.equals(sauce, pizza.sauce)
+                && Objects.equals(cheese, pizza.cheese)
+                && Objects.equals(toppings, pizza.toppings);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, dough, sauce, cheese, toppings, spicy);
     }
 
     @Override
     public String toString() {
-        return "Pizza{" +
-                "name='" + name + '\'' +
-                ", dough='" + dough + '\'' +
-                ", sauce='" + sauce + '\'' +
-                ", cheese='" + cheese + '\'' +
-                ", toppings=" + toppings +
-                ", spicy=" + spicy +
-                '}';
-    }
-
-    /**
-     * Internal mutable state used only by builders.
-     * Keeps the Product itself clean and immutable.
-     */
-    static final class BuilderState {
-        String dough;
-        String sauce;
-        String cheese;
-        final List<String> toppings = new ArrayList<>();
-        boolean spicy;
-        String name;
-
-        void validate() {
-            if (dough == null || dough.isBlank()) {
-                throw new IllegalStateException("Pizza must have a dough type");
-            }
-            if (sauce == null || sauce.isBlank()) {
-                throw new IllegalStateException("Pizza must have a sauce");
-            }
-            if (name == null || name.isBlank()) {
-                throw new IllegalStateException("Pizza must have a name");
-            }
-        }
-    }
-
-    static Pizza from(BuilderState state) {
-        state.validate();
-        return new Pizza(state);
+        return "Pizza{"
+                + "name='" + name + '\''
+                + ", dough='" + dough + '\''
+                + ", sauce='" + sauce + '\''
+                + ", cheese='" + cheese + '\''
+                + ", toppings=" + toppings
+                + ", spicy=" + spicy
+                + '}';
     }
 }

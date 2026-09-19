@@ -1,9 +1,9 @@
 package com.astana.pizza;
 
 /**
- * Builder interface declaring the construction steps
- * that every concrete pizza builder must implement.
- * All step methods return the builder itself to support method chaining.
+ * Builder: declares the step-by-step construction steps shared by every pizza
+ * builder. Each step returns the builder itself, which enables the fluent
+ * (method-chaining) API expected by the client.
  */
 public interface PizzaBuilder {
 
@@ -15,18 +15,18 @@ public interface PizzaBuilder {
 
     PizzaBuilder setCheese(String cheese);
 
+    /** Adds one topping; blank or {@code null} values are ignored. */
     PizzaBuilder addTopping(String topping);
 
     PizzaBuilder setSpicy(boolean spicy);
 
     /**
-     * Assembles and returns the final Pizza.
-     * Throws IllegalStateException when the pizza is in an invalid state.
+     * Assembles and returns the final product.
+     *
+     * @throws IllegalStateException if a required field is missing or blank
      */
     Pizza build();
 
-    /**
-     * Resets the builder so it can be reused for another pizza.
-     */
+    /** Returns the builder to its initial (style-default) state. */
     void reset();
 }

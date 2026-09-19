@@ -1,10 +1,18 @@
 package com.astana.pizza;
 
 /**
- * Director: knows the sequence of steps for common pizza configurations.
- * Does not know the concrete product details - it only works with the Builder interface.
+ * Director: encapsulates the sequence of build steps for known, reusable
+ * configurations. It depends only on the {@link PizzaBuilder} interface, so it
+ * never knows which concrete representation it is constructing.
+ *
+ * <p>Fully bespoke pizzas are intentionally not built here - that is what the
+ * fluent builder API is for ({@code builder.setX(...).build()}), because only
+ * the client knows the one-off sequence.</p>
  */
 public class PizzaDirector {
+
+    private static final String EXTRA_TOPPING_ONE = "Oregano";
+    private static final String EXTRA_TOPPING_TWO = "Garlic";
 
     private PizzaBuilder builder;
 
@@ -12,38 +20,30 @@ public class PizzaDirector {
         this.builder = builder;
     }
 
+    /** Swaps the concrete builder while keeping the same recipes. */
     public void changeBuilder(PizzaBuilder builder) {
         this.builder = builder;
     }
 
     /**
-     * Builds a standard classic pizza using the current builder's defaults.
+     * Builds the plain configuration of whichever builder is currently set, by
+     * relying on that builder's own style defaults.
      */
     public Pizza makeClassic() {
-        return builder
-                .setName(null)          // let concrete builder decide the name
-                .setDough(null)
-                .setSauce(null)
-                .setCheese(null)
-                .build();
+        builder.reset();
+        return builder.build();
     }
 
     /**
-     * Builds a fully customized pizza by letting the client control every step.
-     * Useful when the director is still used but the client wants full freedom.
+     * Builds a richer "spicy deluxe" configuration on top of the current
+     * builder's defaults: the same base pizza plus two extra toppings, made
+     * spicy.
      */
-    public Pizza makeCustom(String name, String dough, String sauce,
-                            String cheese, boolean spicy, String... toppings) {
+    public Pizza makeSpicyDeluxe() {
         builder.reset();
-        builder.setName(name)
-               .setDough(dough)
-               .setSauce(sauce)
-               .setCheese(cheese)
-               .setSpicy(spicy);
-
-        for (String topping : toppings) {
-            builder.addTopping(topping);
-        }
+        builder.setSpicy(true)
+                .addTopping(EXTRA_TOPPING_ONE)
+                .addTopping(EXTRA_TOPPING_TWO);
         return builder.build();
     }
 }
