@@ -1,93 +1,141 @@
-# Builder Pattern – Pizza Example
+# Builder Pattern — Pizza
 
-**Course:** ShP-2216 – Software Design Patterns  
-**Assignment:** #1 – Builder Pattern  
-**Language:** Java 17  
+**Course:** ShP-2216 – Software Design Patterns
+**Assignment:** #1 – Builder Pattern
+**Language:** Java 17 · **Build:** Maven · **Tests:** JUnit 5
 
 ## What is this project?
 
-This project demonstrates the **Builder creational design pattern** by constructing different kinds of pizzas step by step.
+This project demonstrates the **Builder** creational design pattern by assembling
+different kinds of pizzas step by step through a fluent API.
 
 Two concrete builders produce meaningfully different representations:
 
-| Builder                  | Style              | Typical Characteristics                     |
-|--------------------------|--------------------|---------------------------------------------|
-| `MargheritaPizzaBuilder` | Classic Italian    | Thin crust, tomato sauce, mozzarella, basil |
-| `PepperoniPizzaBuilder`  | American spicy     | Thick crust, spicy sauce, lots of pepperoni |
+| Builder | Style | Characteristics |
+|---------|-------|-----------------|
+| `MargheritaPizzaBuilder` | Classic Italian | Thin crust, tomato sauce, mozzarella, fresh basil, not spicy |
+| `PepperoniPizzaBuilder` | American spicy | Thick crust, spicy tomato sauce, cheddar blend, double pepperoni, spicy |
 
-A `PizzaDirector` is provided for reusable standard configurations, while the fluent API still allows full customization.
+A `PizzaDirector` provides reusable, named configurations, while the fluent API still
+allows full customisation.
 
-## Project Structure
+## Pattern roles
+
+| Role | Type |
+|------|------|
+| Product | `Pizza` (immutable) |
+| Builder | `PizzaBuilder` (interface) |
+| Shared construction logic | `AbstractPizzaBuilder` (abstract, template methods) |
+| ConcreteBuilder | `MargheritaPizzaBuilder`, `PepperoniPizzaBuilder` |
+| Director | `PizzaDirector` |
+| Client | `Client` |
+
+## Project structure
 
 ```
 builder-pattern-pizza/
+├── pom.xml
 ├── README.md
-├── src/main/java/com/astana/pizza/
-│   ├── Pizza.java                  # Product (immutable)
-│   ├── PizzaBuilder.java           # Builder interface
-│   ├── MargheritaPizzaBuilder.java # ConcreteBuilder 1
-│   ├── PepperoniPizzaBuilder.java  # ConcreteBuilder 2
-│   ├── PizzaDirector.java          # Director (optional but used)
-│   └── Client.java                 # Demo / main class
+├── REPORT.md                      # assignment report (incl. Clean Code section)
+├── docs/
+│   └── uml.puml                   # PlantUML class diagram
+└── src/
+    ├── main/java/com/astana/pizza/
+    │   ├── Pizza.java                  # Product (immutable)
+    │   ├── PizzaBuilder.java           # Builder interface
+    │   ├── AbstractPizzaBuilder.java   # Shared steps (build/reset are final)
+    │   ├── MargheritaPizzaBuilder.java # ConcreteBuilder 1
+    │   ├── PepperoniPizzaBuilder.java  # ConcreteBuilder 2
+    │   ├── PizzaDirector.java          # Director
+    │   └── Client.java                 # Demo / main
+    └── test/java/com/astana/pizza/
+        └── PizzaBuilderTest.java       # JUnit 5 tests
 ```
 
-## How to run
+## How to build and run
 
-### Option 1 – Compile & run from command line
+Requires JDK 17+ and Maven.
 
 ```bash
-# from the project root
-javac -d out src/main/java/com/astana/pizza/*.java
-java -cp out com.astana.pizza.Client
+# compile + run the demo
+mvn compile exec:java
+
+# run the test suite
+mvn test
+
+# package a jar
+mvn package
 ```
 
-### Option 2 – IntelliJ IDEA
+Or open the folder in IntelliJ IDEA and run `com.astana.pizza.Client`.
 
-1. Open the project folder as a new project.
-2. Mark `src/main/java` as Sources Root (right-click → Mark Directory as → Sources Root).
-3. Run the `Client` class.
+## How to build each representation
 
-## How the builders work
-
-### Using the Director (recommended for standard pizzas)
+### 1. Via the Director (reusable recipes)
 
 ```java
-PizzaBuilder builder = new MargheritaPizzaBuilder();
-PizzaDirector director = new PizzaDirector(builder);
+PizzaDirector director = new PizzaDirector(new MargheritaPizzaBuilder());
 
-Pizza pizza = director.makeClassic();
+Pizza classic = director.makeClassic();       // style defaults
+Pizza deluxe  = director.makeSpicyDeluxe();   // defaults + extra toppings, spicy
 ```
 
-### Fluent API (direct usage)
+Swapping the representation does not change the director:
+
+```java
+director.changeBuilder(new PepperoniPizzaBuilder());
+Pizza pepperoni = director.makeClassic();
+```
+
+### 2. Via the fluent API (full control)
 
 ```java
 Pizza pizza = new PepperoniPizzaBuilder()
-        .setName("Extra Hot")
+        .setName("Extra Hot Pepperoni")
         .setDough("Stuffed Crust")
         .setSauce("Arrabbiata")
-        .addTopping("Jalapeños")
+        .setCheese("Triple Cheese")
+        .addTopping("Jalapenos")
+        .addTopping("Chili Flakes")
         .setSpicy(true)
         .build();
 ```
 
+### 3. Validation
+
+`build()` rejects incomplete products with a clear message:
+
+```java
+new MargheritaPizzaBuilder().setName("").build();
+// IllegalStateException: Cannot build pizza: 'name' must be set and non-blank
+```
+
 ## Design decisions
 
-- **Immutable Product** – once a `Pizza` is built it cannot be changed.
-- **Method chaining** – every setter returns the builder (`this`).
-- **Validation** – `build()` throws `IllegalStateException` when required fields are missing.
-- **No duplicated construction logic** – common validation lives in `Pizza.BuilderState`.
-- **Director is optional** – you can still use the builders directly.
+- **Immutable product** — a built `Pizza` cannot be changed; the topping list is copied
+  defensively and exposed as unmodifiable.
+- **No duplicated construction logic** — every step is implemented once in
+  `AbstractPizzaBuilder`; concrete builders only override `applyStyleDefaults()`, and
+  `build()`/`reset()` are `final`.
+- **Method chaining** — every setter returns the builder (`this`).
+- **Validated construction** — `build()` validates the state and throws
+  `IllegalStateException` naming the missing field.
+- **Director owns known recipes only** — it never proxies arbitrary client input; bespoke
+  pizzas use the fluent API directly.
+- **No magic values** — fixed strings and defaults are named constants.
 
 ## Clean Code principles applied
 
-1. Meaningful, intention-revealing names
-2. Small methods that do one thing
-3. No duplicated construction logic between builders
-4. Validated construction (`build()` throws clear exceptions)
-5. No magic numbers / strings (defaults are explicit and named)
-6. Immutable final product + package-private mutable state
-7. Consistent formatting and focused classes
+See [`REPORT.md`](REPORT.md) §3 for annotated before/after excerpts.
 
-## Author
+1. No duplicated construction logic between builders
+2. Meaningful, intention-revealing names
+3. Small methods that each do one thing
+4. Validated construction with a clear exception
+5. No magic numbers or strings
+6. Immutable product with a defensive copy
+7. Program to an interface, not an implementation
 
-Student implementation for Astana IT University – Software Design Patterns course.
+## UML
+
+The class diagram source is in [`docs/uml.puml`](docs/uml.puml) (PlantUML).

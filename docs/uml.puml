@@ -1,0 +1,80 @@
+@startuml
+' Builder pattern - Pizza (Assignment #1, ShP-2216)
+' Render with PlantUML: https://www.plantuml.com/plantuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class Pizza <<Product>> {
+  - name : String
+  - dough : String
+  - sauce : String
+  - cheese : String
+  - toppings : List<String>
+  - spicy : boolean
+  ~ Pizza(name, dough, sauce, cheese, toppings, spicy)
+  + getName() : String
+  + getDough() : String
+  + getSauce() : String
+  + getCheese() : String
+  + getToppings() : List<String>
+  + isSpicy() : boolean
+}
+
+interface PizzaBuilder <<Builder>> {
+  + setName(name : String) : PizzaBuilder
+  + setDough(dough : String) : PizzaBuilder
+  + setSauce(sauce : String) : PizzaBuilder
+  + setCheese(cheese : String) : PizzaBuilder
+  + addTopping(topping : String) : PizzaBuilder
+  + setSpicy(spicy : boolean) : PizzaBuilder
+  + build() : Pizza
+  + reset() : void
+}
+
+abstract class AbstractPizzaBuilder {
+  # name : String
+  # dough : String
+  # sauce : String
+  # cheese : String
+  # toppings : List<String>
+  # spicy : boolean
+  # applyStyleDefaults() : void {abstract}
+  + build() : Pizza {final}
+  + reset() : void {final}
+}
+
+class MargheritaPizzaBuilder <<ConcreteBuilder>> {
+  # applyStyleDefaults() : void
+}
+
+class PepperoniPizzaBuilder <<ConcreteBuilder>> {
+  # applyStyleDefaults() : void
+}
+
+class PizzaDirector <<Director>> {
+  - builder : PizzaBuilder
+  + PizzaDirector(builder : PizzaBuilder)
+  + changeBuilder(builder : PizzaBuilder) : void
+  + makeClassic() : Pizza
+  + makeSpicyDeluxe() : Pizza
+}
+
+class Client <<Client>> {
+  + main(args : String[]) : void
+}
+
+PizzaBuilder <|.. AbstractPizzaBuilder
+AbstractPizzaBuilder <|-- MargheritaPizzaBuilder
+AbstractPizzaBuilder <|-- PepperoniPizzaBuilder
+AbstractPizzaBuilder ..> Pizza : creates >
+PizzaDirector o--> PizzaBuilder : uses >
+Client ..> PizzaDirector : uses >
+Client ..> PizzaBuilder : uses >
+
+note right of AbstractPizzaBuilder
+  Template method: build() and reset()
+  are final and shared, so no concrete
+  builder can duplicate the mechanics.
+end note
+
+@enduml
