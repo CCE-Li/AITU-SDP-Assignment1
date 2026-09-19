@@ -37,8 +37,11 @@ builder-pattern-pizza/
 ├── pom.xml
 ├── README.md
 ├── REPORT.md                      # assignment report (incl. Clean Code section)
+├── REPORT.pdf                     # rendered report, ready to submit
 ├── docs/
-│   └── uml.puml                   # PlantUML class diagram
+│   ├── uml.puml                   # PlantUML class diagram (source)
+│   ├── uml.png                    # rendered diagram
+│   └── uml.svg                    # rendered diagram (vector)
 └── src/
     ├── main/java/com/astana/pizza/
     │   ├── Pizza.java                  # Product (immutable)
