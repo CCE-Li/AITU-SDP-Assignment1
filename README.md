@@ -138,4 +138,7 @@ See [`REPORT.md`](REPORT.md) §3 for annotated before/after excerpts.
 
 ## UML
 
-The class diagram source is in [`docs/uml.puml`](docs/uml.puml) (PlantUML).
+![UML class diagram](docs/uml.png)
+
+Source: [`docs/uml.puml`](docs/uml.puml) (PlantUML) · rendered: [`docs/uml.png`](docs/uml.png),
+[`docs/uml.svg`](docs/uml.svg).

@@ -36,51 +36,13 @@ all of this:
 
 ## 2. UML Class Diagram
 
-Source (PlantUML) is in [`docs/uml.puml`](../docs/uml.puml). Render it at
-<https://www.plantuml.com/plantuml> or with the PlantUML IntelliJ plugin.
+![UML class diagram](docs/uml.png)
 
-```
-        +--------------------------+            +-----------------------------+
-        |        <<Product>>       |            |       <<Director>>          |
-        |          Pizza           |            |        PizzaDirector        |
-        +--------------------------+            +-----------------------------+
-        | - name, dough, sauce,    |            | - builder : PizzaBuilder    |
-        |   cheese : String        |            +-----------------------------+
-        | - toppings : List<String>|            | + makeClassic() : Pizza     |
-        | - spicy : boolean        |            | + makeSpicyDeluxe() : Pizza |
-        +--------------------------+            | + changeBuilder(b) : void   |
-                    ^                           +-----------------------------+
-                    | creates                                 |
-                    |                                         | uses
-        +--------------------------+                          v
-        |      <<Builder>>         |<----------------+ +-----------------+
-        |      PizzaBuilder        |                 | |     Client      |
-        +--------------------------+                 | +-----------------+
-        | + setName/setDough/...   |                 | | + main(...)     |
-        | + build() : Pizza        |                 | +-----------------+
-        | + reset() : void         |                 |
-        +--------------------------+                 |
-                    ^                                |
-                    | implements                     |
-        +--------------------------+                 |
-        |  AbstractPizzaBuilder    |  (abstract)     |
-        +--------------------------+                 |
-        | # fields ...             |                 |
-        | # applyStyleDefaults()   |                 |
-        | + build()  {final}       |                 |
-        | + reset()  {final}       |                 |
-        +--------------------------+                 |
-             ^                ^                        |
-             | extends        | extends                |
-   +------------------+  +----------------------+      |
-   | MargheritaPizza  |  | PepperoniPizza       |      |
-   | Builder          |  | Builder              |      |
-   +------------------+  +----------------------+      |
-   | # applyStyle     |  | # applyStyle         |      |
-   |   Defaults()     |  |   Defaults()         |      |
-   +------------------+  +----------------------+      |
-                                                        |
-   Client ..........................uses............... +
+Source (PlantUML) is in [`docs/uml.puml`](docs/uml.puml); rendered versions are
+[`docs/uml.png`](docs/uml.png) and [`docs/uml.svg`](docs/uml.svg). Re-render with:
+
+```bash
+java -jar plantuml.jar -charset UTF-8 -tpng docs/uml.puml
 ```
 
 **Reading the diagram**
